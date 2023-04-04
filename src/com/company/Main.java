@@ -23,9 +23,10 @@ public class Main{
         String username = "root";
         String password = "12345678";
         Connection conn = DriverManager.getConnection(url,username,password);
-
+        init_db.initializeDatabase(conn);
         //show library interface in console
         System.out.println(conn.getClass().getName());
+        init_db.load("src/user.csv", "src/books.csv");
         System.out.println("Connection successful!, Welcome to Library System!");
         System.out.println("Date:" + new java.util.Date());
         System.out.println("----------------------------------------------------");

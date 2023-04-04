@@ -2,11 +2,53 @@ package util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.sql.*;
+
 public class init_db {
+
+    public static Connection initializeDatabase (Connection connection) throws Exception {
+
+             Statement statement = connection.createStatement();
+            // delete existing tables if they exist
+            statement.executeUpdate("DROP TABLE IF EXISTS books");
+            statement.executeUpdate("DROP TABLE IF EXISTS orders");
+            statement.executeUpdate("DROP TABLE IF EXISTS users");
+            // Create the 'books' table
+            String createBooksTable = "CREATE TABLE `books` (\n" +
+                    "  `isbn` varchar(45) NOT NULL,\n" +
+                    "  `title` varchar(45) NOT NULL,\n" +
+                    "  `authors` varchar(50) NOT NULL,\n" +
+                    "  `price` int NOT NULL,\n" +
+                    "  `storage` varchar(45) NOT NULL,\n" +
+                    "  PRIMARY KEY (`isbn`),\n" +
+                    "  UNIQUE KEY `isbn_UNIQUE` (`isbn`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci";
+            statement.executeUpdate(createBooksTable);
+
+            // Create the 'orders' table
+            String createOrdersTable = "CREATE TABLE `orders` (\n" +
+                    "  `oid` varchar(45) NOT NULL,\n" +
+                    "  `uid` varchar(45) NOT NULL,\n" +
+                    "  `order_date` timestamp(6) NOT NULL,\n" +
+                    "  `order_isbn` varchar(45) NOT NULL,\n" +
+                    "  `order_quantity` int NOT NULL,\n" +
+                    "  `shipping_status` varchar(45) NOT NULL\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci";
+            statement.executeUpdate(createOrdersTable);
+
+            // Create the 'users' table
+            String createUsersTable = "CREATE TABLE `users` (\n" +
+                    "  `uid` int unsigned NOT NULL,\n" +
+                    "  `name` varchar(45) NOT NULL,\n" +
+                    "  `address` varchar(45) NOT NULL,\n" +
+                    "  PRIMARY KEY (`uid`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci";
+            statement.executeUpdate(createUsersTable);
+            System.out.println("Database initialized successfully!");
+            return connection;
+        }
+
+
     public static void load(String path1, String path2) throws Exception{
         Class.forName("com.mysql.cj.jdbc.Driver");
         String url = "jdbc:mysql://localhost:3306/library_system";

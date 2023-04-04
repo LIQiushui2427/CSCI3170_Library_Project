@@ -1,9 +1,6 @@
 package util;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -38,12 +35,12 @@ public class customer_operation {
         }
         System.out.println("Search done!");
     }
-    public static void set_order(Connection conn, String uid, String oid, String date) throws Exception {
+    public static void set_order(Connection conn, String uid, String oid, Timestamp date) throws Exception {
         while(set_order_util(conn,uid, oid, date) == 0){
             continue;
         }
     }
-    public static int set_order_util(Connection conn, String uid, String oid, String date) throws Exception{
+    public static int set_order_util(Connection conn, String uid, String oid, Timestamp date) throws Exception{
         Scanner scanner = new Scanner(System.in);
         System.out.println("Last order item sent or failed. Please enter the ISBN of the book you want to order. Enter 0 to end order:");
         String isbn = scanner.next();
@@ -78,7 +75,7 @@ public class customer_operation {
                 PreparedStatement ps1 = conn.prepareStatement("INSERT INTO orders VALUES (?,?,?,?,?,?)");
                 ps1.setString(1, oid);
                 ps1.setString(2, uid);
-                ps1.setString(3, date);
+                ps1.setTimestamp(3, date);
                 ps1.setString(4, isbn);
                 ps1.setInt(5, quantity);
                 ps1.setString(6, "ordered");
@@ -112,7 +109,7 @@ public class customer_operation {
                 }
                 case "2": {
                     int oid = new Random().nextInt(100000);
-                    String order_date = new java.util.Date().toString();
+                    Timestamp order_date = new Timestamp(System.currentTimeMillis());
                     String oid_str = String.valueOf(oid);
                     System.out.println("Order placed! Your order ID in this session is: " + oid);
                     System.out.println("Please enter the book ISBN you want to order. You can view the available books first by enter 'view' in the console:");
