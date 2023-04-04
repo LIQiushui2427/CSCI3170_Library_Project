@@ -27,8 +27,8 @@ public class init_db {
 
             // Create the 'orders' table
             String createOrdersTable = "CREATE TABLE `orders` (\n" +
-                    "  `oid` varchar(45) NOT NULL,\n" +
-                    "  `uid` varchar(45) NOT NULL,\n" +
+                    "  `OID` varchar(45) NOT NULL,\n" +
+                    "  `UID` varchar(45) NOT NULL,\n" +
                     "  `order_date` timestamp(6) NOT NULL,\n" +
                     "  `order_isbn` varchar(45) NOT NULL,\n" +
                     "  `order_quantity` int NOT NULL,\n" +
@@ -38,10 +38,10 @@ public class init_db {
 
             // Create the 'users' table
             String createUsersTable = "CREATE TABLE `users` (\n" +
-                    "  `uid` int unsigned NOT NULL,\n" +
+                    "  `UID` int unsigned NOT NULL,\n" +
                     "  `name` varchar(45) NOT NULL,\n" +
                     "  `address` varchar(45) NOT NULL,\n" +
-                    "  PRIMARY KEY (`uid`)\n" +
+                    "  PRIMARY KEY (`UID`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci";
             statement.executeUpdate(createUsersTable);
             System.out.println("Database initialized successfully!");
@@ -49,29 +49,25 @@ public class init_db {
         }
 
 
-    public static void load(String path1, String path2) throws Exception{
+    public static void load(Connection conn, String path1, String path2) throws Exception{
         Class.forName("com.mysql.cj.jdbc.Driver");
-        String url = "jdbc:mysql://localhost:3306/library_system";
-        String username = "root";
-        String password = "12345678";
-        Connection conn = DriverManager.getConnection(url,username,password);
 
 
         BufferedReader reader = new BufferedReader(new FileReader(path1));
         String line = null;
         while((line = reader.readLine()) != null){
             String[] data = line.split(",");
-            String uid = data[0];
+            String UID = data[0];
             String name = data[1];
             String address = data[2];
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO users (uid, name, address) VALUES (?, ?, ?)");
-            stmt.setString(1, uid);
+            PreparedStatement stmt = conn.prepareStatement("INSERT INTO users (UID, name, address) VALUES (?, ?, ?)");
+            stmt.setString(1, UID);
             stmt.setString(2, name);
             stmt.setString(3, address);
             stmt.executeUpdate();
         }
         reader.close();
-        System.out.println("User initialized successfully!");
+        System.out.println("User loaded from local file successfully!");
 
         String sql_1 = "insert into books (isbn, title, authors, price, storage) values(?, ?, ?, ?, ?)";
         conn.prepareStatement(sql_1);
@@ -93,6 +89,6 @@ public class init_db {
             stmt.setString(5, storage);
             stmt.executeUpdate();
         }
-        System.out.println("Book initialized successfully!");
+        System.out.println("Book loaded from local file successfully!");
     }
 }

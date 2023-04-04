@@ -22,19 +22,19 @@ public class show {
             String sql_ = "SELECT * FROM users";
             java.sql.ResultSet rs = stmt.executeQuery(sql_);
             while(rs.next()){
-                System.out.println("UserId: " + rs.getString("uid") + " Username: " +rs.getString("name") +" address: " + rs.getString("address"));
+                System.out.println("UserId: " + rs.getString("UID") + " Username: " +rs.getString("name") +" address: " + rs.getString("address"));
             }
         }
         catch (java.sql.SQLException e) {
             e.printStackTrace();
             }
         }
-        public static void show_orders(Connection conn, String uid){
+        public static void show_orders(Connection conn, String UID){
             try{Statement stmt = conn.createStatement();
-            String sql_ = "SELECT * FROM orders WHERE uid = " + uid;
+            String sql_ = "SELECT * FROM orders WHERE UID = " + UID;
             java.sql.ResultSet rs = stmt.executeQuery(sql_);
             while(rs.next()){
-                System.out.println("Order ID: " + rs.getString("oid") +
+                System.out.println("Order ID: " + rs.getString("OID") +
                         " Order isbn:" + rs.getString("order_isbn")
                         + " Date: " + rs.getString("order_date") +
                         " Quantity: " + rs.getString("order_quantity"));

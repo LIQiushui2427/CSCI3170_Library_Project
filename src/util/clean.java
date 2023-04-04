@@ -6,13 +6,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 public class clean {
-    public static void delete() throws Exception {
+    public static void delete(Connection conn) throws Exception {
         //delete all data in database
         Class.forName("com.mysql.cj.jdbc.Driver");
-        String url = "jdbc:mysql://localhost:3306/library_system";
-        String username = "root";
-        String password = "12345678";
-        Connection conn = DriverManager.getConnection(url, username, password);
 
         String sql_ = "delete from users";
         conn.prepareStatement(sql_);

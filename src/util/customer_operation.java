@@ -35,23 +35,26 @@ public class customer_operation {
         }
         System.out.println("Search done!");
     }
-    public static void set_order(Connection conn, String uid, String oid, Timestamp date) throws Exception {
-        while(set_order_util(conn,uid, oid, date) == 0){
+    public static void set_order(Connection conn, String UID, String OID, Timestamp date) throws Exception {
+        while(set_order_util(conn,UID, OID, date) == 0){
             continue;
         }
     }
-    public static int set_order_util(Connection conn, String uid, String oid, Timestamp date) throws Exception{
+    public static int set_order_util(Connection conn, String UID, String OID, Timestamp date) throws Exception{
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Last order item sent or failed. Please enter the ISBN of the book you want to order. Enter 0 to end order:");
+        System.out.println("New item in one order: Please enter the ISBN of the book you want to order. Enter 0 to end this order session:");
         String isbn = scanner.next();
-        if(isbn == "0")return 1;
+        if(isbn.equals("0")){
+            System.out.println("Order ends! Returning to customer menu...");
+            return 1;
+        }
         PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM books WHERE isbn = ?");
         ps.setString(1, isbn);
         ResultSet rs = ps.executeQuery();
         rs.next();
         int count = rs.getInt(1);
         if (count == 0) {
-            System.out.println("ISBN Not found, order ends!");
+            System.out.println("ISBN Not found or invalid input, order ends! Returning to customer menu...");
             return 1;
         } else {
             Statement stmt = conn.createStatement();
@@ -62,8 +65,15 @@ public class customer_operation {
             }
             System.out.println("Please enter the quantity of the book you want to order:");
 
-            int quantity = scanner.nextInt();
-
+            String input = scanner.next();
+            int quantity = 0;
+            if (input.matches("\\d+")) {
+                quantity = Integer.parseInt(input);
+            } else {
+                // handle the case when the input is not a non-negative integer
+                System.out.println("Invalid input, order ends!");
+                return 1;
+            }
             rs = stmt.executeQuery(sql);
             rs.next();
 
@@ -73,14 +83,14 @@ public class customer_operation {
                 return 1;
             } else {
                 PreparedStatement ps1 = conn.prepareStatement("INSERT INTO orders VALUES (?,?,?,?,?,?)");
-                ps1.setString(1, oid);
-                ps1.setString(2, uid);
+                ps1.setString(1, OID);
+                ps1.setString(2, UID);
                 ps1.setTimestamp(3, date);
                 ps1.setString(4, isbn);
                 ps1.setInt(5, quantity);
                 ps1.setString(6, "ordered");
                 ps1.executeUpdate();
-                System.out.println("Order successful! Details:" + "Order ID: " + oid + " ISBN: " + isbn + " Quantity: " + quantity);
+                System.out.println("Order successful! Details:" + "Order ID: " + OID + " ISBN: " + isbn + " Quantity: " + quantity);
                 //update the book
                 PreparedStatement ps2 = conn.prepareStatement("UPDATE books SET storage = ? WHERE isbn = ?");
                 ps2.setInt(1, storage - quantity);
@@ -91,7 +101,7 @@ public class customer_operation {
             }
         }
     }
-    public static void customer_operation(Connection conn, String uid) throws Exception{
+    public static void customer_operation(Connection conn, String UID) throws Exception{
         Scanner scanner = new Scanner(System.in);
 
         while (true){
@@ -108,20 +118,23 @@ public class customer_operation {
                     break;
                 }
                 case "2": {
-                    int oid = new Random().nextInt(100000);
+                    int OID = new Random().nextInt(99999999);
                     Timestamp order_date = new Timestamp(System.currentTimeMillis());
-                    String oid_str = String.valueOf(oid);
-                    System.out.println("Order placed! Your order ID in this session is: " + oid);
-                    System.out.println("Please enter the book ISBN you want to order. You can view the available books first by enter 'view' in the console:");
+                    String oid_str = String.valueOf(OID);
+                    System.out.println("Order placed! Your order ID in this session is: " + OID);
+                    System.out.println("Order started. You can view the available books first by enter 'view' in the console. Input other keys to continue booking.");
                     String key = scanner.next();
                     if(key.equals("view")){
                         show.show_books(conn);
                     }
-                    customer_operation.set_order(conn, uid, oid_str, order_date);
+                    else{
+                        customer_operation.set_order(conn, UID, oid_str, order_date);
+                    }
+
                     break;
                 } case "3": {
-                    System.out.println("uid:" + uid + "Loading your orders...");
-                    show.show_orders(conn, uid);
+                    System.out.println("UID:" + UID + "Loading your orders...");
+                    show.show_orders(conn, UID);
                     break;
                 } case "4": {
                     show.show_books(conn);
