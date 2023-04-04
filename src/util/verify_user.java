@@ -15,6 +15,15 @@ public class verify_user  {
             System.out.println("User not found! return to main menu");
             return false;
         }
-        return true;
+        else{
+            String username = "SELECT name FROM users WHERE UID = ?";
+            PreparedStatement ps1 = conn.prepareStatement(username);
+            ps1.setString(1, UID);
+            java.sql.ResultSet rs1 = ps1.executeQuery();
+            rs1.next();
+            String name = rs1.getString(1);
+            System.out.println("User found! Welcome, " + name);
+            return true;
+        }
     }
 }

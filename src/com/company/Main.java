@@ -36,9 +36,9 @@ public class Main{
         show.show_users(conn);
         System.out.println("----------------------------------------------------");
         while (true){
-         System.out.println("Login...Please enter your username: enter exit to exit");
+         System.out.println("Login...Please enter your username: enter 0 to exit");
                     UID = scanner.next();
-                    if (UID.equals("exit")){
+                    if (UID.equals("0")){
                         System.out.println("Exiting...");
                         System.exit(0);
                     }
@@ -46,7 +46,6 @@ public class Main{
                         System.out.println("Username not found, please try again!");
                         continue;
                     }
-                    System.out.println("Login successful! Welcome " + UID + "!");
                     break;
         }
         while (true){
@@ -56,6 +55,7 @@ public class Main{
             switch (input){
                 case "1": {//initiate database
                     System.out.println("Initiating database...");
+                    init_db.initializeDatabase(conn);
                     clean.delete(conn);
                     init_db.load(conn, "src/user.csv", "src/books.csv");
                     break;
