@@ -13,6 +13,11 @@ public class init_db {
             statement.executeUpdate("DROP TABLE IF EXISTS books");
             statement.executeUpdate("DROP TABLE IF EXISTS orders");
             statement.executeUpdate("DROP TABLE IF EXISTS users");
+            statement.executeUpdate("DROP TABLE IF EXISTS author");
+            statement.executeUpdate("DROP TABLE IF EXISTS book_author");
+            statement.executeUpdate("DROP TABLE IF EXISTS order_details");
+            statement.executeUpdate("DROP TABLE IF EXISTS item");
+            System.out.println("Old tables dropped successfully!");
             // Create the 'books' table
             String createBooksTable = "CREATE TABLE `books` (\n" +
                     "  `isbn` varchar(45) NOT NULL,\n" +
@@ -24,7 +29,7 @@ public class init_db {
                     "  UNIQUE KEY `isbn_UNIQUE` (`isbn`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci";
             statement.executeUpdate(createBooksTable);
-
+            System.out.println("Book table initialized successfully!");
             // Create the 'orders' table
             String createOrdersTable = "CREATE TABLE `orders` (\n" +
                     "  `OID` varchar(45) NOT NULL,\n" +
@@ -35,7 +40,7 @@ public class init_db {
                     "  `shipping_status` varchar(45) NOT NULL\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci";
             statement.executeUpdate(createOrdersTable);
-
+            System.out.println("Order table initialized successfully!");
             // Create the 'users' table
             String createUsersTable = "CREATE TABLE `users` (\n" +
                     "  `UID` int unsigned NOT NULL,\n" +
@@ -44,7 +49,16 @@ public class init_db {
                     "  PRIMARY KEY (`UID`)\n" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci";
             statement.executeUpdate(createUsersTable);
-            System.out.println("Database initialized successfully!");
+            System.out.println("User table initialized successfully!");
+            String createAuthorTable = "CREATE TABLE author (author_name VARCHAR(45), isbn VARCHAR(45))";
+            statement.executeUpdate(createAuthorTable);
+            System.out.println("Author table initialized successfully!");
+            String createOrderDetailsTable = "CREATE TABLE order_details (OID VARCHAR(45), order_quantity INT, shipping_status VARCHAR(45))";
+            statement.executeUpdate(createOrderDetailsTable);
+            System.out.println("Order details table initialized successfully!");
+            statement.executeUpdate("CREATE TABLE item (OID VARCHAR(45), isbn VARCHAR(45), quantity INT)");
+            System.out.println("Item table initialized successfully!");
+            System.out.println("All tables initialized successfully!");
             return connection;
         }
 

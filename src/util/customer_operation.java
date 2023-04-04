@@ -39,6 +39,26 @@ public class customer_operation {
         while(set_order_util(conn,UID, OID, date) == 0){
             continue;
         }
+        System.out.println("Order ends! Showing order details for OID: " + OID);
+        show_order_detail(conn, OID);
+    }
+    public static void show_order_detail(Connection conn, String OID) throws Exception{
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT * FROM order_details WHERE OID = " + OID);
+        while(rs.next()) {
+            System.out.println("Order ID: " + rs.getString("OID") +
+                    " Quantity: " + rs.getString("order_quantity"));
+        }
+        String sql = "SELECT * FROM orders WHERE OID = " + OID;
+        stmt.executeQuery(sql);
+        rs = stmt.executeQuery(sql);
+        while(rs.next()){
+            System.out.println("Order ID: " + rs.getString("OID") +
+                    " Order isbn:" + rs.getString("order_isbn")
+                    + " Date: " + rs.getString("order_date") +
+                    " Quantity: " + rs.getString("order_quantity"));
+        }
+        System.out.println("--------------------Order details shown!--------------------");
     }
     public static int set_order_util(Connection conn, String UID, String OID, Timestamp date) throws Exception{
         Scanner scanner = new Scanner(System.in);
@@ -70,7 +90,6 @@ public class customer_operation {
             if (input.matches("\\d+")) {
                 quantity = Integer.parseInt(input);
             } else {
-                // handle the case when the input is not a non-negative integer
                 System.out.println("Invalid input, order ends!");
                 return 1;
             }
@@ -83,12 +102,8 @@ public class customer_operation {
                 return 1;
             } else {
                 PreparedStatement ps1 = conn.prepareStatement("INSERT INTO orders VALUES (?,?,?,?,?,?)");
-                ps1.setString(1, OID);
-                ps1.setString(2, UID);
-                ps1.setTimestamp(3, date);
-                ps1.setString(4, isbn);
-                ps1.setInt(5, quantity);
-                ps1.setString(6, "ordered");
+                ps1.setString(1, OID);ps1.setString(2, UID);ps1.setTimestamp(3, date);
+                ps1.setString(4, isbn);ps1.setInt(5, quantity);ps1.setString(6, "ordered");
                 ps1.executeUpdate();
                 System.out.println("Order successful! Details:" + "Order ID: " + OID + " ISBN: " + isbn + " Quantity: " + quantity);
                 //update the book
@@ -97,6 +112,32 @@ public class customer_operation {
                 ps2.setString(2, isbn);
                 ps2.executeUpdate();
                 System.out.println("Book storage of ISBN " + isbn + " updated to " + (storage - quantity));
+                //insert the item
+                PreparedStatement ps3 = conn.prepareStatement("INSERT INTO item VALUES (?,?,?)");
+                ps3.setString(1, OID);ps3.setString(2, isbn);ps3.setInt(3, quantity);
+                ps3.executeUpdate();
+                //update the order details, if the order is not in the order details, insert it
+                PreparedStatement ps4 = conn.prepareStatement("SELECT COUNT(*) FROM order_details WHERE OID = ?");
+                ps4.setString(1, OID);
+                ResultSet rs1 = ps4.executeQuery();
+                rs1.next();
+                int count1 = rs1.getInt(1);
+                if (count1 == 0) {
+                    PreparedStatement ps5 = conn.prepareStatement("INSERT INTO order_details VALUES (?,?,?)");
+                    ps5.setString(1, OID);ps5.setInt(2, quantity);ps5.setString(3, "ordered");
+                    ps5.executeUpdate();
+                } else {
+                    PreparedStatement ps6 = conn.prepareStatement("UPDATE order_details SET order_quantity = ? WHERE OID = ?");
+                    ps6.setString(2, OID);
+                    //get the current quantity
+                    PreparedStatement ps7 = conn.prepareStatement("SELECT order_quantity FROM order_details WHERE OID = ?");
+                    ps7.setString(1, OID);
+                    ResultSet rs2 = ps7.executeQuery();
+                    rs2.next();
+                    int current_quantity = rs2.getInt(1);
+                    ps6.setInt(1, current_quantity + quantity);
+                    ps6.executeUpdate();
+                }
                 return 0;
             }
         }
